@@ -1,0 +1,147 @@
+<html>
+<head>
+    <script src="../js/three.js"></script>
+    <style>
+        html, body { margin: 0; padding: 0; overflow: hidden; }
+    </style>
+</head>
+<body>
+<div id="container"></div>
+<script>
+
+    //------SETTING UP SCENE AND CAMERA
+
+    // Set the scene size.
+    const WIDTH = window.innerWidth;
+    const HEIGHT = window.innerHeight;
+
+    // Set some camera attributes.
+    const VIEW_ANGLE = 45;
+    const ASPECT = WIDTH / HEIGHT;
+    const NEAR = 0.1;
+    const FAR = 10000;
+
+    // Get the DOM element to attach to
+    const container =
+        document.querySelector('#container');
+
+    // Create a WebGL renderer, camera
+    // and a scene
+    const renderer = new THREE.WebGLRenderer();
+    const camera =
+        new THREE.PerspectiveCamera(
+            VIEW_ANGLE,
+            ASPECT,
+            NEAR,
+            FAR
+        );
+
+    const scene = new THREE.Scene();
+
+    // Add the camera to the scene.
+    scene.add(camera);
+
+    // Start the renderer.
+    renderer.setSize(WIDTH, HEIGHT);
+
+    // Attach the renderer-supplied
+    // DOM element.
+    container.appendChild(renderer.domElement);
+
+    //------SETTING UP A MESH AND ADDING IT TO SCENE
+
+    // Set up the sphere vars
+    const RADIUS = 50;
+    const SEGMENTS = 16;
+    const RINGS = 16;
+
+
+    // create the sphere's material
+    const sphereMaterial =
+        new THREE.MeshLambertMaterial(
+        {
+            color: 0xCC0000
+        });
+
+    // Create a new mesh with
+    // sphere geometry - we will cover
+    // the sphereMaterial next!
+    const sphere = new THREE.Mesh(
+        new THREE.SphereGeometry(
+            RADIUS,
+            SEGMENTS,
+            RINGS),
+
+        sphereMaterial);
+
+    // Move the Sphere back in Z so we
+    // can see it.
+    sphere.position.z = -300;
+
+    // Finally, add the sphere to the scene.
+    scene.add(sphere);
+
+
+    //-------ADD A LIGHTPOINT TO SEE STUFF
+
+    // create a point light
+    const pointLight =
+        new THREE.PointLight(0xFFFFFF);
+
+    // set its position
+    pointLight.position.x = 10;
+    pointLight.position.y = 50;
+    pointLight.position.z = 130;
+
+    // add to the scene
+    scene.add(pointLight);
+
+    //--------ACTUALLY DRAW IT
+    // Draw!
+    renderer.render(scene, camera);
+
+    //--------LOOP IT
+    function update() {
+        // Draw!
+        renderer.render(scene, camera);
+
+        // Schedule the next frame.
+        requestAnimationFrame(update);
+    }
+
+    // Schedule the first frame.
+    requestAnimationFrame(update);
+
+
+    //-----EXTRA's
+    //--HOW TO ACCESS INFO OF MESH
+    // sphere geometry
+    sphere.geometry
+
+
+
+    // which contains the vertices and faces
+    sphere.geometry.vertices // an array
+    sphere.geometry.faces // also an array
+
+    // its position
+    sphere.position // contains x, y and z
+    sphere.rotation // same
+    sphere.scale // ... same
+
+    //--GETS CACHED, NEED TO ENABLE THESE BOOLS TO MAKE CHANGES IN BROWSER
+    // Changes to the vertices
+    sphere.geometry.verticesNeedUpdate = true;
+
+    // Changes to the normals
+    sphere.geometry.normalsNeedUpdate = true;
+
+    sphere.position.x += 10;
+    sphere.position.y += 10;
+    sphere.position.z += 10;
+
+    console.log('Test ' + sphere.position);
+
+</script>
+</body>
+</html>

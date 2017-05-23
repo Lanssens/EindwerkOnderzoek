@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        html, body { margin: 0; padding: 0; overflow: hidden; }
+    </style>
+</head>
+<body>
+<script src="../js/three.js"></script>
+
+<script src="../js/effects/AsciiEffect.js"></script>
+<script src="../js/renderers/Projector.js"></script>
+
+<!--GEBRUIKT CANVAS IPV WEBGL-->
+<script src="../js/renderers/CanvasRenderer.js"></script>
+
+<script>
+
+    //--------INITIALISING-------
+
+    var mouse = new THREE.Vector2();
+    var container = document.createElement( 'div' );
+    document.body.appendChild( container );
+
+    var scene = new THREE.Scene();
+    var aspect = window.innerWidth / window.innerHeight;
+    var camera = new THREE.PerspectiveCamera( 75, aspect, 0.1, 1000 );
+    var renderer  = new THREE.CanvasRenderer();
+    renderer.setClearColor( 0xf0f0f0 );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    //document.body.appendChild( renderer.domElement );
+
+    // create a point light
+    const pointLight =
+        new THREE.PointLight(0xFFFFFF);
+
+    pointLight.intensity = 1.5;
+    // set its position
+    pointLight.position.x = 10;
+    pointLight.position.y = 50;
+    pointLight.position.z = 130;
+
+    // add to the scene
+    scene.add(pointLight);
+
+    var meshArray = [];
+
+    camera.position.z = 5;
+
+    effect = new THREE.AsciiEffect( renderer );
+    effect.setSize( window.innerWidth, window.innerHeight );
+    container.appendChild( effect.domElement );
+
+    window.addEventListener( 'resize', onWindowResize, false );
+
+    function onWindowResize() {
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        effect.setSize( window.innerWidth, window.innerHeight );
+
+    }
+
+
+    //--------MOUSE LOGICA--------
+
+    document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+    document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+
+    function onDocumentMouseDown( event ) {
+        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+        var raycaster = new THREE.Raycaster();
+
+        var vector = new THREE.Vector3( mouse.x, mouse.y, 1 ).unproject( camera );
+
+        raycaster.set( camera.position, vector.sub( camera.position ).normalize() );
+
+        var intersects = raycaster.intersectObjects( scene.children );
+        if(intersects != ""){
+            var INTERSECTED = intersects[0].object;
+            INTERSECTED.material.color.setHex(hashCode(getRandomColor()));
+
+        }
+
+
+    }
+
+    function onDocumentMouseMove( event ) {
+        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+        var raycaster = new THREE.Raycaster();
+
+        var vector = new THREE.Vector3( mouse.x, mouse.y, 1 ).unproject( camera );
+
+        raycaster.set( camera.position, vector.sub( camera.position ).normalize() );
+
+        var intersects = raycaster.intersectObjects( scene.children );
+
+    }
+
+    //--------RENDER LOOP--------
+
+    var last = 0; // timestamp of the last render() call
+    function render(now) {
+        // each 2 seconds call the createNewObject() function
+        if(!last || now - last >= 2*1000) {
+            last = now;
+
+            //Do something
+            addRandomCubeToList();
+            console.log('added cube');
+
+        }
+        requestAnimationFrame( render);
+
+
+        var raycaster = new THREE.Raycaster();
+
+        var vector = new THREE.Vector3( mouse.x, mouse.y, 1 ).unproject( camera );
+
+        raycaster.set( camera.position, vector.sub( camera.position ).normalize() );
+
+        var intersects = raycaster.intersectObjects( scene.children );
+        if(intersects != ""){
+            var INTERSECTED = intersects[0].object;
+            INTERSECTED.rotation.x -= 0.05;
+            INTERSECTED.rotation.y -= 0.05;
+
+            //INTERSECTED.position.z += 0.05;
+        }
+
+
+        for(var i = 0; i < meshArray.length; i++){
+            meshArray[i].rotation.x += 0.02;
+            meshArray[i].rotation.y += 0.02;
+        }
+        //renderer.render( scene, camera );
+        effect.render( scene, camera );
+    };
+
+    render();
+
+    //--------ETC----------
+
+    function addRandomCubeToList(){
+        var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+        var color = getRandomColor();
+        var material = new THREE.MeshLambertMaterial(
+            {
+                color: color
+            });
+        var cube = new THREE.Mesh( geometry, material );
+
+        cube.position.x = (Math.random()*10) -5;
+        cube.position.y = (Math.random()*10) -5;
+        cube.position.z = (Math.random()*5) -5;
+
+        meshArray.push(cube);
+        scene.add(cube);
+    }
+
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++ ) {
+            color += letters[Math.floor(Math.random() * 16)];
+
+        }
+        return color;
+    }
+    function hashCode(str) {
+        var hash = 0;
+        for (var i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        return hash;
+    }
+</script>
+</body>
+</html>
