@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8"/>
+    <title>Babylon - Getting Started</title>
+    <!--- link to the last version of babylon --->
+    <script src="./stats.min.js"></script>
+    <script src="babylon.2.5.js"></script>
+    <style>
+        html, body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+    </style>
+</head>
+<body>
+<div id="canvasContainer">
+
+    <canvas id="renderCanvas"></canvas>
+</div>
+<script>
+    //https://doc.babylonjs.com/tutorials/materials
+    window.addEventListener('DOMContentLoaded', function () {
+        // get the canvas DOM element
+        var canvas = document.getElementById('renderCanvas');
+        var canvasContainer = document.getElementById('canvasContainer');
+        var stats = new Stats();
+
+        canvasContainer.appendChild( stats.dom );
+
+
+
+        // load the 3D engine
+        var engine = new BABYLON.Engine(canvas, true);
+
+        var meshArray = [];
+
+        var scene = new BABYLON.Scene(engine);
+
+        // createScene function that creates and return the scene
+        var setupScene = function () {
+            // create a basic BJS Scene object
+
+
+
+            // create a FreeCamera, and set its position to (x:0, y:5, z:-10)
+            var camera = new BABYLON.FreeCamera('camera1', new BABYLON.Vector3(0, 7, -30), scene);
+
+            // target the camera to scene origin
+            camera.setTarget(BABYLON.Vector3.Zero());
+
+            // attach the camera to the canvas
+            camera.attachControl(canvas, false);
+
+            // create a basic light, aiming 0,1,0 - meaning, to the sky
+            var light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0, -2, -10), scene);
+            light.intensity = 0.5;
+
+            var amountOfRandomlyGeneratedCubes = 100;
+            for(var i = 0; i < amountOfRandomlyGeneratedCubes; i++){
+                addRandomCubeToList();
+            }
+
+        }
+
+        // call the createScene function
+        setupScene();
+
+        // run the render loop
+        engine.runRenderLoop(function () {
+            stats.update();
+            scene.render();
+        });
+
+        // the canvas/window resize event handler
+        window.addEventListener('resize', function () {
+            engine.resize();
+        });
+
+        function addRandomCubeToList() {
+
+            var box = BABYLON.Mesh.CreateBox("box", 2.0, scene);
+            // move the sphere upward 1/2 of its height
+            box.position.x = (Math.random() * 10) - 5;
+            box.position.y = (Math.random() * 10) - 5;
+            box.position.z = (Math.random() * 10) - 5;
+
+            var materialSphere1 = new BABYLON.StandardMaterial("texture1", scene);
+
+            //materialSphere1.alpha = 0.5;
+
+            materialSphere1.diffuseColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+
+            box.material = materialSphere1;
+
+
+
+            meshArray.push(box);
+            //scene.add(box);
+
+
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+<head>
+    <script src="./stats.min.js"></script>
+    <script src="./playcanvas-latest.js"></script>
+    <link href="../style.css" rel="stylesheet" />
+</head>
+
+<body>
+
+
+    <!-- The canvas element -->
+
+    <div id="canvasContainer">
+
+        <canvas id="application-canvas"></canvas>
+    </div>
+
+    <!-- The script -->
+    <script>
+        //https://developer.mozilla.org/en-US/docs/Games/Techniques/3D_on_the_web/Building_up_a_basic_demo_with_PlayCanvas/engine
+
+        var canvas = document.getElementById("application-canvas");
+
+        var canvasContainer = document.getElementById('canvasContainer');
+        var stats = new Stats();
+
+        canvasContainer.appendChild( stats.dom );
+
+        // Create the application and start the update loop
+        var app = new pc.Application(canvas);
+        app.start();
+
+        // Set the canvas to fill the window and automatically change resolution to be the same as the canvas size
+        app.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
+        app.setCanvasResolution(pc.RESOLUTION_AUTO);
+
+        app.scene.ambientLight = new pc.Color(0.2, 0.2, 0.2);
+
+
+
+        var meshArray = [];
+        var amountOfRandomlyGeneratedCubes = 100;
+        for(var i = 0; i < amountOfRandomlyGeneratedCubes; i++){
+            addRandomCubeToList();
+        }
+
+        // Create an Entity with a point light component and a sphere model component.
+        var light = new pc.Entity();
+        light.addComponent("light", {
+            type: "point",
+            color: new pc.Color(1, 1, 1),
+            radius: 20
+        });
+
+
+
+        // Scale the sphere down to 0.1m
+        light.setLocalScale(10, 10, 10);
+        light.setLocalPosition(0, 0, 10);
+
+        // Create an Entity with a camera component
+        var camera = new pc.Entity();
+        camera.addComponent("camera", {
+            clearColor: new pc.Color(1,1,1)
+        });
+
+        // Add the new Entities to the hierarchy
+        app.root.addChild(light);
+        app.root.addChild(camera);
+
+        // Move the camera 10m along the z-axis
+        camera.translate(0, 5, 30);
+
+        // Set an update function on the app's update event
+        var angle = 0;
+        app.on("update", function (dt) {
+
+            stats.update();
+           /* angle += dt;
+            if (angle > 360) {
+                angle = 0;
+            }
+
+            // Move the light in a circle
+            light.setLocalPosition(3 * Math.sin(angle), 0, 3 * Math.cos(angle));
+
+            // Rotate the box
+            box.setEulerAngles(angle*2, angle*4, angle*8);*/
+        });
+
+        window.addEventListener('resize', onWindowResize, false);
+
+        function onWindowResize() {
+
+            app.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
+            app.setCanvasResolution(pc.RESOLUTION_AUTO);
+
+        }
+
+
+
+        function addRandomCubeToList() {
+            var boxMaterial = new pc.PhongMaterial();
+            boxMaterial.diffuse.set(Math.random(), Math.random(), Math.random());
+            boxMaterial.update();
+
+            // Create a Entity with a Box model component
+            var box = new pc.Entity();
+            box.addComponent("model", {
+                type: "box"
+            });
+
+
+            box.model.model.meshInstances[0].material = boxMaterial;
+
+            box.setLocalScale(2, 2, 2);
+            box.setLocalPosition((Math.random() * 10) - 5, (Math.random() * 10) - 5, (Math.random() * 10) - 5);
+
+            app.root.addChild(box);
+            meshArray.push(box);
+
+
+        }
+
+        OrbitCamera.prototype._checkAspectRatio = function () {
+            var height = this.app.graphicsDevice.height;
+            var width = this.app.graphicsDevice.width;
+
+            // Match the axis of FOV to match the aspect ratio of the canvas so
+            // the focused entities is always in frame
+            this.entity.camera.horizontalFov = height > width;
+        };
+    </script>
+</body>
+</html>
